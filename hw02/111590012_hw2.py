@@ -121,6 +121,42 @@ def color_labeling(labels):
     return color_img
 
 
+def pattern_counting(binary_image, pattern):
+    count = 0
+    for i in range(binary_image.shape[0] - 1):
+        for j in range(binary_image.shape[1] - 1):
+            if np.array_equal(binary_image[i:i+2, j:j+2], pattern):
+                count += 1
+    return count
+
+
+def internal_counting(binary_image):
+    internal = 0
+    for i in range(2):
+        for j in range(2):
+            pattern = np.full((2, 2), 255, dtype=int)
+            pattern[i][j] = 0
+            internal += pattern_counting(binary_image, pattern)
+    return internal
+
+
+def external_counting(binary_image):
+    external = 0
+    for i in range(2):
+        for j in range(2):
+            pattern = np.zeros((2, 2), dtype=int)
+            pattern[i][j] = 255
+            external += pattern_counting(binary_image, pattern)
+    return external
+
+
+def object_counting(binary_image):
+    internal_count = internal_counting(binary_image)
+    external_count = external_counting(binary_image)
+    object_count = (external_count-internal_count)/4
+    return internal_count, external_count, object_count
+
+
 def main():
     create_result_dir()
     image_paths = get_all_test_img_path()
@@ -136,6 +172,14 @@ def main():
         labels = component_labeling(
             binary_image, Connected.ENIGHT)
         color_labels_8 = color_labeling(labels)
+
+        internal_count, external_count, object_count = object_counting(
+            binary_image)
+        
+        print(os.path.basename(image_path).center(30,"="))
+        print(f"Internal Count: {internal_count}")
+        print(f"External Count: {external_count}")
+        print(f"Object Count: {object_count}")
 
         # save result
         prefix = os.path.join(CURRENT_DIR, 'result_img', os.path.splitext(
