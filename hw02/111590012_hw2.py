@@ -164,6 +164,7 @@ def main():
         origin_image = cv2.imread(image_path)
         gray_image = convert_to_gray(origin_image)
         threshold = iterative_threshold(gray_image)
+        # threshold = 250
         binary_image = convert_to_binary(gray_image, threshold, flip=True)
 
         labels = component_labeling(
@@ -175,8 +176,8 @@ def main():
 
         internal_count, external_count, object_count = object_counting(
             binary_image)
-        
-        print(os.path.basename(image_path).center(30,"="))
+
+        print(os.path.basename(image_path).center(30, "="))
         print(f"Internal Count: {internal_count}")
         print(f"External Count: {external_count}")
         print(f"Object Count: {object_count}")
